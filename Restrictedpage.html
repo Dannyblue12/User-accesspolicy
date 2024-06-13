@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Math Test</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
+<style>
+body {
+  margin: 0 auto;
+  padding: 0 auto;
+  text-align: center;
+  background-color: aliceblue;
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  font-family: sans-serif;
+  font-weight: 400;
+  overflow-y: scroll;
+}
+
+h1 {
+  color: #396;
+  font-weight: 400;
+  font-size: 30px;
+  margin: 20px 0;
+}
+
+.game {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0;
+  color: #000;
+  background: transparent;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0), inset 0 0 rgba(0, 0, 0, .0);
+  width: 400px;
+  height: auto;
+  overflow-y: visible;
+  border-radius: 20px;
+  outline: none;
+}
+
+.ques.night {
+  background: #000000ec;
+  color: #fff;
+}
+
+#solutionButton {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: sans-serif;
+  color: #fff;
+  text-stroke: 2px black;
+  background-color: green;
+  height: 50px;
+  border-top-right-radius: 15px;
+  border-top-left-radius: 15px;
+  margin: 20px 0;
+}
+
+.content {
+  background-color: #fff;
+}
+
+#question {
+  margin-top: 20px;
+  font-size: 20px;
+  letter-spacing: 0.1rem;
+}
+
+#solution {
+  font-size: 18px;
+  letter-spacing: 0.1rem;
+  color: black;
+}
+
+#score {
+  position: relative;
+  background-color: orange;
+  width: 300px;
+  margin: 0 auto;
+  height: 35px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 300;
+  font-family: Lily;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.line {
+  color: black;
+  padding-bottom: 20px;
+}
+
+#options {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btn {
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  margin: 5px;
+  transition: transform 0.2s ease;
+  box-sizing: border-box;
+  width: 80%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.show-solution-img {
+  width: 30px;
+  height: auto;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.option-letter {
+  font-weight: bold;
+  display: flex;
+  margin-right: 0px;
+}
+
+.popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: none;
+  z-index: 10;
+}
+
+.popup h2 {
+  margin-top: 0;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9;
+  display: none;
+}
+</style>
+</head>
+<body>
+<div id="content">
+  <div id="score">Score: 0</div>
+  <div id="question"></div>
+  <div id="options"></div>
+  <button id="solutionButton">Show Solution</button>
+  <img class="show-solution-img" src="https://via.placeholder.com/30" alt="Show Solution">
+  <div id="solution" style="display:none;"></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+  <h2>Quiz Completed!</h2>
+  <p id="finalScore"></p>
+  <button onclick="closePopup()">Close</button>
+</div>
+
+<div class="popup" id="accessDeniedPopup">
+  <h2>Access Denied</h2>
+  <p>You do not have permission to view this page.</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"></script>
+<script>
+const questions = [
+    {
+        "Q": "A body of 2.0kg mass makes an elastic collision with another at rest and continues to move in the original direction but with \\(\\frac{1}{4}\\) of its original speed. What is the mass of the struck body?",
+        A: "3.0kg",
+        B: "1.2kg",
+        C: "0.25kg",
+        D: "7kg",
+        Ans: "B",
+        "Solution": "Using conservation of momentum and kinetic energy, we find that the mass of the struck body is 1.2kg."
+    },
+    {
+        Q: "A bullet of mass 10g strikes a ballistic pendulum of mass 2.0kg. The center of mass of the pendulum is a vertical distance of 12cm. Assuming the bullet remains embedded in the pendulum, calculate its initial speed",
+        A: "210m/s",
+        B: "40m/s",
+        C: "310m/s",
+        D: "2m/s",
+        Ans: "C",
+        Solution: "Using conservation of momentum and energy, the initial speed of the bullet is calculated to be 310m/s."
+    },
+];
+
+let score = 0;
+let currentQuestion = 0;
+
+function renderQuestion() {
+    const questionContainer = document.getElementById('question');
+    const optionsContainer = document.getElementById('options');
+    const question = questions[currentQuestion];
+
+    // Render question
+    questionContainer.innerHTML = question.Q;
+    renderMathInElement(questionContainer, {
+        throwOnError: false
+    });
+
+    // Render options
+    optionsContainer.innerHTML = '';
+    for (let option in question) {
+        if (option !== 'Q' && option !== 'Ans' && option !== 'Solution') {
+            const btn = document.createElement('div');
+            btn.className = 'btn';
+            btn.dataset.option = option;
+            const letterSpan = document.createElement('span');
+            letterSpan.className = 'option-letter';
+            letterSpan.textContent = option;
+            btn.appendChild(letterSpan);
+            const textSpan = document.createElement('span');
+            textSpan.innerHTML = question[option];
+            btn.appendChild(textSpan);
+            optionsContainer.appendChild(btn);
+            renderMathInElement(textSpan, {
+                throwOnError: false
+            });
+            btn.addEventListener('click', function() {
+                checkAnswer(option, questions[currentQuestion].Ans);
+            });
+        }
+    }
+
+    // Show solution button if there is a solution
+    const solutionButton = document.getElementById('solutionButton');
+    if (question.Solution) {
+        solutionButton.style.display = 'block';
+    } else {
+        solutionButton.style.display = 'none';
+    }
+}
+
+function checkAnswer(selectedOption, correctAnswer) {
+    if (selectedOption === correctAnswer) {
+        score++;
+        document.getElementById('score').textContent = 'Score: ' + score;
+    }
+
+    // Mark the selected option and the correct option
+    markOptions(selectedOption, correctAnswer);
+
+    // Move to the next question
+    currentQuestion++;
+    if (currentQuestion < questions.length) {
+        setTimeout(renderQuestion, 2000); // Move to the next question after 2 seconds
+    } else {
+        setTimeout(showPopup, 2000); // Show the popup after the last question
+    }
+}
+
+function markOptions(selectedOption, correctAnswer) {
+    // Find and mark the selected option
+    const selectedBtn = document.querySelector(`.btn[data-option="${selectedOption}"]`);
+    selectedBtn.style.backgroundColor = selectedOption === correctAnswer ? 'green': 'red';
+    
+    // Find and mark the correct option
+    const correctBtn = document.querySelector(`.btn[data-option="${correctAnswer}"]`);
+    if (correctBtn) {
+        correctBtn.style.backgroundColor = 'green';
+    }
+}
+
+function showPopup() {
+    document.getElementById('finalScore').textContent = 'Your final score is ' + score + '/' + questions.length;
+    document.getElementById('popup').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function closePopup() {
+    document.getElementById('popup').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+    // Reset the quiz
+    score = 0;
+    currentQuestion = 0;
+    document.getElementById('score').textContent = 'Score: ' + score;
+    renderQuestion();
+}
+
+function showAccessDenied() {
+    document.getElementById('accessDeniedPopup').style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+}
+
+function checkAccess() {
+    const userToken = localStorage.getItem('userToken');
+    const studentName = localStorage.getItem('studentName');
+    if (userToken && studentName) {
+        // Allow access and render the first question
+        renderQuestion();
+    } else {
+        // Deny access and show the access denied popup
+        showAccessDenied();
+    }
+}
+
+// Check access when the page loads
+window.onload = checkAccess;
+
+document.getElementById('solutionButton').addEventListener('click', function() {
+    const solution = questions[currentQuestion].Solution;
+    if (solution) {
+        const solutionDiv = document.getElementById('solution');
+        solutionDiv.innerHTML = solution;
+        renderMathInElement(solutionDiv, {
+            throwOnError: false
+        });
+        solutionDiv.style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>

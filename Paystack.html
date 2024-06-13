@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paystack Inline</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        /* Integrated CSS */
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap");
+
+        body {
+            margin: 0;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .App {
+            text-align: center;
+            font-family: "Roboto";
+            letter-spacing: 0.1rem;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 635px;
+            background: white;
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .item, .checkout {
+            width: 50%;
+            position: relative;
+        }
+
+        .item-image {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .overlay-effect {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            opacity: 0.2;
+            background-color: #303030;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .item-details {
+            position: absolute;
+            bottom: 0;
+            margin-bottom: 5px;
+            margin-left: 20px;
+            color: #84a17d;
+            text-align: left;
+        }
+
+        .item-details__title {
+            font-size: 22px;
+            color: green;
+            font-weight:bold;
+            text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-details__amount {
+            font-weight: bolder;
+        }
+
+        .checkout {
+            background: #84a17d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 430px;
+        }
+
+        .checkout-form {
+            padding: 20px;
+        }
+
+        .checkout-field {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .checkout-field label {
+            text-align: left;
+            color: #e0eafc;
+            font-size: 10px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+        }
+
+        .checkout-field input {
+            background-color: transparent;
+            border: 1px solid #cecece;
+            border-radius: 5px;
+            color: #e0eafc;
+            height: 35px;
+            padding-left: 10px;
+        }
+
+        .checkout-field input:focus {
+            background-color: transparent;
+            outline: none;
+        }
+
+        .paystack-button {
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            background-color: green;
+            font-weight: bold;
+            color: #e0eafc;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            height: 45px;
+            margin-top: 40px;
+        }
+
+        .paystack-button:hover {
+            background-color: #dadada;
+        }
+
+        .paystack-button:focus {
+            outline: none;
+        }
+
+        /* Popup CSS */
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .popup img {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        .popup h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .popup a {
+            color: #84a17d;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .item, .checkout {
+                width: 100%;
+                height: auto;
+            }
+
+            .checkout {
+                padding: 20px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="App">
+        <div class="container">
+            <div class="item">
+                <img src="your-image-url.jpg" alt="Item Image" class="item-image">
+                <div class="overlay-effect"></div>
+                <div class="item-details">
+                    <div class="item-details__title">CBT Practice past question for 100lv</div>
+                    <div class="item-details__amount">₦300</div>
+                </div>
+            </div>
+            <div class="checkout">
+                <form id="paymentForm" class="checkout-form">
+                    <div class="checkout-field">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email-address" required />
+                    </div>
+                    <div class="checkout-field">
+                        <label for="amount">Amount</label>
+                        <input type="tel" id="amount" value="300" disabled />
+                    </div>
+                    <div class="checkout-field">
+                        <label for="first-name">Name of Student</label>
+                        <input type="text" id="first-name" required />
+                    </div>
+                    <div class="checkout-field">
+                        <label for="department">Department of Student</label>
+                        <input type="text" id="department" required />
+                    </div>
+                    <div class="form-submit">
+                        <button type="button" class="paystack-button" onclick="payWithPaystack()">Pay ₦300</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup" id="exitPopup">
+        <img src="your-popup-image-url.jpg" alt="Help Image">
+        <h2>Are you confused on how to make payment?</h2>
+        <a href="#">Click here</a>
+    </div>
+
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+    <script>
+        function payWithPaystack() {
+            const paystack = new PaystackPop();
+            paystack.newTransaction({
+                key: 'pk_live_64c23d6d8a53dbf350c549dce4e7e7423f146998', // Replace with your public key
+                email: document.getElementById("email-address").value,
+                amount: 300 * 100, // Fixed amount in kobo
+                onSuccess: (transaction) => {
+                    const userToken = transaction.reference; // Unique user token
+                    localStorage.setItem("userToken", userToken);
+                    localStorage.setItem("studentName", document.getElementById("first-name").value);
+                    alert('Payment complete! Reference: ' + transaction.reference);
+                    window.location.href = "restricted-page.html"; // Redirect to the restricted page
+                },
+                onCancel: () => {
+                    document.getElementById("exitPopup").style.display = "block";
+                }
+            });
+        }
+        window.addEventListener("beforeunload", function (event) {
+            event.preventDefault();
+            document.getElementById("exitPopup").style.display = "block";
+            return "";
+        });
+
+        window.addEventListener("unload", function (event) {
+            event.preventDefault();
+            document.getElementById("exitPopup").style.display = "block";
+            return "";
+        });
+    </script>
+</body>
+</html>
