@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Rental Site</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        form {
+            margin: 20px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #32CD32;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #28a745;
+        }
+
+        .upload-box {
+            display: inline-block;
+            padding: 20px;
+            border: 2px dashed #32CD32;
+            cursor: pointer;
+            width: 80%;
+            text-align: center;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f0fff0;
+            color: #32CD32;
+        }
+
+        .upload-box:hover {
+            background-color: #e0ffe0;
+        }
+
+        #photoPreview {
+            display: flex;
+            overflow-x: scroll;
+            gap: 10px;
+            padding: 10px 0;
+        }
+
+        #photoPreview img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        #houseList {
+            margin: 20px;
+        }
+
+        .houseItem {
+            border: 1px solid #ddd;
+            margin: 10px;
+            padding: 10px;
+            text-align: left;
+            background: white;
+            border-radius: 5px;
+        }
+
+        .houseItem img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>House Rental Site</h1>
+    <form id="houseForm">
+        <div class="upload-box" id="uploadBox">
+            <p>+</p>
+            <p>Add photo of House</p>
+            <input type="file" id="housePhoto" accept="image/*" multiple style="display:none;">
+        </div>
+        <div id="photoPreview"></div>
+        <input type="text" id="location" placeholder="Location" required><br>
+        <input type="text" id="specification" placeholder="Specification" required><br>
+        <input type="number" id="price" placeholder="Price (₦)" required><br>
+        <input type="tel" id="phone" placeholder="Phone Number" required><br>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="houseList"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-storage.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyALe2QO7oAInRdNammhS1aQ3B0AQ-JYHa0",
+            authDomain: "serveremail-412f8.firebaseapp.com",
+            databaseURL: "https://serveremail-412f8-default-rtdb.firebaseio.com",
+            projectId: "serveremail-412f8",
+            storageBucket: "serveremail-412f8.appspot.com",
+            messagingSenderId: "721074652031",
+            appId: "1:721074652031:web:bdd22c14a1557d1851904a"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const storage = getStorage(app);
+
+        const uploadBox = document.getElementById('uploadBox');
+        const housePhotoInput = document.getElementById('housePhoto');
+        const photoPreview = document.getElementById('photoPreview');
+
+        let selectedFiles = [];
+
+        uploadBox.addEventListener('click', () => {
+            housePhotoInput.click();
+        });
+
+        housePhotoInput.addEventListener('change', () => {
+            const files = Array.from(housePhotoInput.files);
+            if (selectedFiles.length + files.length > 5) {
+                alert('You can only upload up to 5 photos.');
+                return;
+            }
+
+            selectedFiles = selectedFiles.concat(files);
+
+            photoPreview.innerHTML = '';
+            selectedFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    photoPreview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        document.getElementById('houseForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const location = document.getElementById('location').value;
+            const specification = document.getElementById('specification').value;
+            let price = document.getElementById('price').value;
+            const phone = document.getElementById('phone').value;
+
+            // Format price
+            price = Number(price).toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
+
+            const photoURLs = [];
+
+            try {
+                if (selectedFiles.length > 0) {
+                    for (let i = 0; i < selectedFiles.length; i++) {
+                        const photoFile = selectedFiles[i];
+                        const photoRef = storageRef(storage, 'housePhotos/' + photoFile.name);
+                        await uploadBytes(photoRef, photoFile);
+                        const photoURL = await getDownloadURL(photoRef);
+                        photoURLs.push(photoURL);
+                    }
+                }
+
+                const newHouseRef = ref(database, 'houses/' + Date.now());
+                await set(newHouseRef, {
+                    photoURLs,
+                    location,
+                    specification,
+                    price,
+                    phone
+                });
+
+                alert('House data submitted successfully!');
+                console.log('House data submitted successfully!');
+            } catch (error) {
+                alert('Failed to submit house data. Please try again.');
+                console.error('Error submitting house data:', error);
+            }
+        });
+
+        const houseListRef = ref(database, 'houses');
+        onValue(houseListRef, (snapshot) => {
+            const houses = snapshot.val();
+            const houseList = document.getElementById('houseList');
+            houseList.innerHTML = '';
+
+            for (const id in houses) {
+                const house = houses[id];
+                const houseItem = document.createElement('div');
+                houseItem.classList.add('houseItem');
+                houseItem.innerHTML = `
+                    ${house.photoURLs ? house.photoURLs.map(url => `<img src="${url}" alt="House Photo"><br>`).join('') : ''}
+                    <strong>Location:</strong> ${house.location}<br>
+                    <strong>Specification:</strong> ${house.specification}<br>
+                    <strong>Price:</strong> ${house.price}<br>
+                    <strong>Phone:</strong> ${house.phone}<br>
+                `;
+                houseList.appendChild(houseItem);
+            }
+        });
+    </script>
+</body>
+</html>
