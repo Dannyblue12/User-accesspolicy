@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Verification</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f4f4f4;
+}
+
+.container {
+    text-align: center;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+form {
+    margin: 20px 0;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OTP Verification</h1>
+        <div id="form-container">
+            <form id="otp-form">
+                <label for="phone">Enter your phone number:</label>
+                <input type="text" id="phone" placeholder="e.g. 08012345678" required>
+                <button type="button" onclick="sendOTP()">Send OTP</button>
+            </form>
+            <form id="otp-validation-form" style="display:none;">
+                <label for="otp">Enter the OTP:</label>
+                <input type="text" id="otp" required>
+                <button type="button" onclick="validateOTP()">Validate OTP</button>
+            </form>
+        </div>
+    </div>
+    <script>
+ const apiKey = 'TLqLIMGCyYQwTfTFlRPNitWbPCxymADmcJEMDmGoyEzuDOEiUwBsPtspYoWBHI';
+const apiUrl = 'https://v3.api.termii.com';
+
+function sendOTP() {
+    const phone = document.getElementById('phone').value;
+    if (phone) {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        localStorage.setItem('storedOtp', otp);
+        localStorage.setItem('userPhone', phone);
+
+        const data = {
+            to: phone,
+            from: "MEasySchool", 
+            sms: `Your activation is successful, your OTP is ${otp}`,
+            type: "plain", 
+            api_key: apiKey
+        };
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response Data:', data);
+            if (data.status === 'success' || data.successful || data.code === "ok") {
+                document.getElementById('otp-form').style.display = 'none';
+                document.getElementById('otp-validation-form').style.display = 'block';
+            } else {
+                alert(`Failed to send OTP: ${data.message || data.response || 'Unknown error'}`);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            alert('An error occurred while sending OTP. Check the console for details.');
+        });
+    } else {
+        alert('Please enter a valid phone number.');
+    }
+}
+
+function validateOTP() {
+    const inputOtp = document.getElementById('otp').value;
+    const storedOtp = localStorage.getItem('storedOtp');
+    if (inputOtp === storedOtp) {
+        window.location.href = 'success.html'; 
+    } else {
+        alert('Invalid OTP. Please try again.');
+    }
+}
+    </script>
+</body>
+</html>
