@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Page</title>
+</head>
+<body>
+    <h1>Protected Page</h1>
+    <div id="content" style="display: none;">
+        <h2>Welcome to the protected content!</h2>
+        <p>Only logged-in users can see this page.</p>
+        <button id="logout-button">Logout</button>
+    </div>
+    <div id="unauthorized" style="display: none;">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+            authDomain: "database-login-530f7.firebaseapp.com",
+            projectId: "database-login-530f7",
+            storageBucket: "database-login-530f7.appspot.com",
+            messagingSenderId: "280997222442",
+            appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Check if user is authenticated
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in, show the protected content
+                document.getElementById('content').style.display = 'block';
+                document.getElementById('unauthorized').style.display = 'none';
+            } else {
+                // No user is signed in, redirect to login page
+                document.getElementById('content').style.display = 'none';
+                document.getElementById('unauthorized').style.display = 'block';
+                setTimeout(() => {
+                    window.location.href = 'login.html'; // Replace 'login.html' with the actual path to your login page
+                }, 2000); // Redirect after 2 seconds
+            }
+        });
+
+        // Logout function
+        function logOutUser() {
+            signOut(auth)
+                .then(() => {
+                    console.log("User signed out.");
+                    window.location.href = 'login.html'; // Redirect to login page after logout
+                })
+                .catch((error) => {
+                    console.error("Error signing out:", error);
+                    alert("Logout failed: " + error.message);
+                });
+        }
+
+        // Attach logout event listener
+        document.getElementById('logout-button').addEventListener('click', logOutUser);
+
+    </script>
+</body>
+</html>
