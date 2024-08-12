@@ -23,7 +23,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
         
         // Firebase configuration
         const firebaseConfig = {
@@ -89,16 +89,24 @@
         }
 
         // Function to handle logout
-        function logOutUser() {
-            signOut(auth)
-                .then(() => {
-                    console.log("User signed out.");
-                    showLoginForm();
-                })
-                .catch((error) => {
-                    console.error("Error signing out:", error);
-                    alert("Logout failed: " + error.message);
-                });
+        async function logOutUser() {
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = doc(db, "userFingerprints", user.uid);
+                
+                // Clear the fingerprint from Firestore when the user logs out
+                await deleteDoc(userRef);
+                
+                signOut(auth)
+                    .then(() => {
+                        console.log("User signed out.");
+                        showLoginForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error signing out:", error);
+                        alert("Logout failed: " + error.message);
+                    });
+            }
         }
 
         // Function to show user info
