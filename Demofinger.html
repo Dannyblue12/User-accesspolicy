@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Authentication Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+</head>
+<body>
+    <h1>Firebase Authentication Example</h1>
+    <div id="auth-container">
+        <div id="login-form">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button id="login-button">Login</button>
+        </div>
+        <div id="logout-container" style="display: none;">
+            <button id="logout-button">Logout</button>
+            <div id="user-info"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+            authDomain: "database-login-530f7.firebaseapp.com",
+            projectId: "database-login-530f7",
+            storageBucket: "database-login-530f7.appspot.com",
+            messagingSenderId: "280997222442",
+            appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Set persistence to local
+        setPersistence(auth, browserLocalPersistence)
+            .catch((error) => {
+                console.error("Error setting persistence:", error);
+            });
+
+        // Generate browser fingerprint
+        async function getBrowserFingerprint() {
+            const fp = await FingerprintJS.load();
+            const result = await fp.get();
+            return result.visitorId;
+        }
+
+        // Function to handle login
+        async function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(async (userCredential) => {
+                    const user = userCredential.user;
+                    const fingerprint = await getBrowserFingerprint();
+                    const userRef = doc(db, "userFingerprints", user.uid);
+                    const userDoc = await getDoc(userRef);
+
+                    if (userDoc.exists()) {
+                        const savedFingerprint = userDoc.data().fingerprint;
+                        if (savedFingerprint !== fingerprint) {
+                            // Notify the user that they are already logged in from another browser
+                            alert("Access denied! You are already logged in from another browser. Please log out first.");
+                            logOutUser();
+                            return;
+                        }
+                    } else {
+                        // Save the fingerprint if it's the first login
+                        await setDoc(userRef, { fingerprint });
+                    }
+
+                    // User logged in successfully
+                    console.log("User logged in:", user);
+                    showUserInfo(user);
+                    showLogoutButton();
+                })
+                .catch((error) => {
+                    console.error("Error logging in:", error);
+                    alert("Login failed: " + error.message);
+                });
+        }
+
+        // Function to handle logout
+        async function logOutUser() {
+            const user = auth.currentUser;
+            if (user) {
+                const userRef = doc(db, "userFingerprints", user.uid);
+                
+                // Clear the fingerprint from Firestore when the user logs out
+                await deleteDoc(userRef);
+                
+                signOut(auth)
+                    .then(() => {
+                        console.log("User signed out.");
+                        showLoginForm();
+                    })
+                    .catch((error) => {
+                        console.error("Error signing out:", error);
+                        alert("Logout failed: " + error.message);
+                    });
+            }
+        }
+
+        // Function to show user info
+        function showUserInfo(user) {
+            const userInfo = document.getElementById('user-info');
+            userInfo.textContent = `Logged in as: ${user.email}`;
+        }
+
+        // Function to show login form
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('logout-container').style.display = 'none';
+        }
+
+        // Function to show logout button
+        function showLogoutButton() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('logout-container').style.display = 'block';
+        }
+
+        // Monitor auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                showUserInfo(user);
+                showLogoutButton();
+            } else {
+                // No user is signed in
+                showLoginForm();
+            }
+        });
+
+        // Attach event listeners
+        document.getElementById('login-button').addEventListener('click', loginUser);
+        document.getElementById('logout-button').addEventListener('click', logOutUser);
+
+    </script>
+</body>
+</html>
