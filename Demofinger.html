@@ -23,7 +23,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
         
         // Firebase configuration
         const firebaseConfig = {
@@ -67,17 +67,17 @@
 
                 if (userDoc.exists()) {
                     const savedFingerprint = userDoc.data().fingerprint;
-                    if (savedFingerprint !== fingerprint) {
+                    if (savedFingerprint && savedFingerprint !== fingerprint) {
                         // Notify the user and log them out if the fingerprint doesn't match
                         alert("Access denied! You are already logged in from another browser. Please log out first.");
                         await signOut(auth);
                         return;
                     }
-                } else {
-                    // Save the fingerprint if it's the first login
-                    await setDoc(userRef, { fingerprint });
                 }
 
+                // Save the fingerprint if it's the first login or if the fingerprint matches
+                await setDoc(userRef, { fingerprint });
+                
                 // User logged in successfully
                 console.log("User logged in:", user);
                 showUserInfo(user);
