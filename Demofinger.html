@@ -23,7 +23,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
         
         // Firebase configuration
         const firebaseConfig = {
@@ -58,35 +58,34 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            signInWithEmailAndPassword(auth, email, password)
-                .then(async (userCredential) => {
-                    const user = userCredential.user;
-                    const fingerprint = await getBrowserFingerprint();
-                    const userRef = doc(db, "userFingerprints", user.uid);
-                    const userDoc = await getDoc(userRef);
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const fingerprint = await getBrowserFingerprint();
+                const userRef = doc(db, "userFingerprints", user.uid);
+                const userDoc = await getDoc(userRef);
 
-                    if (userDoc.exists()) {
-                        const savedFingerprint = userDoc.data().fingerprint;
-                        if (savedFingerprint !== fingerprint) {
-                            // Notify the user that they are already logged in from another browser
-                            alert("Access denied! You are already logged in from another browser. Please log out first.");
-                            logOutUser();
-                            return;
-                        }
-                    } else {
-                        // Save the fingerprint if it's the first login
-                        await setDoc(userRef, { fingerprint });
+                if (userDoc.exists()) {
+                    const savedFingerprint = userDoc.data().fingerprint;
+                    if (savedFingerprint !== fingerprint) {
+                        // Notify the user and log them out if the fingerprint doesn't match
+                        alert("Access denied! You are already logged in from another browser. Please log out first.");
+                        await signOut(auth);
+                        return;
                     }
+                } else {
+                    // Save the fingerprint if it's the first login
+                    await setDoc(userRef, { fingerprint });
+                }
 
-                    // User logged in successfully
-                    console.log("User logged in:", user);
-                    showUserInfo(user);
-                    showLogoutButton();
-                })
-                .catch((error) => {
-                    console.error("Error logging in:", error);
-                    alert("Login failed: " + error.message);
-                });
+                // User logged in successfully
+                console.log("User logged in:", user);
+                showUserInfo(user);
+                showLogoutButton();
+            } catch (error) {
+                console.error("Error logging in:", error);
+                alert("Login failed: " + error.message);
+            }
         }
 
         // Function to handle logout
@@ -96,17 +95,11 @@
                 const userRef = doc(db, "userFingerprints", user.uid);
                 
                 // Clear the fingerprint from Firestore when the user logs out
-                await deleteDoc(userRef);
+                await setDoc(userRef, { fingerprint: null });
                 
-                signOut(auth)
-                    .then(() => {
-                        console.log("User signed out.");
-                        showLoginForm();
-                    })
-                    .catch((error) => {
-                        console.error("Error signing out:", error);
-                        alert("Logout failed: " + error.message);
-                    });
+                await signOut(auth);
+                console.log("User signed out.");
+                showLoginForm();
             }
         }
 
