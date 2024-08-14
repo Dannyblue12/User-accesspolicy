@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Quiz</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .courses {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .course {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .course:hover {
+            background-color: #0056b3;
+        }
+
+        .quiz {
+            display: none;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        #next-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #next-btn:hover {
+            background-color: #218838;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #c82333;
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .progress-circle {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #f4f4f4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .progress-circle.blue {
+            background-color: lightblue;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="auth-container" class="container">
+        <div id="login-form">
+            <h2>Login</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Password">
+            <button id="login-button">Login</button>
+        </div>
+        <div id="logout-container" style="display: none;">
+            <button id="logout-button">Logout</button>
+            <div id="user-info"></div>
+        </div>
+    </div>
+
+    <div class="container" id="main-content" style="display: none;">
+        <h1>Select a Course</h1>
+        <div class="progress-container">
+            <div class="progress-circle" id="progress-English">0%</div>
+            <div class="progress-circle" id="progress-Physics">0%</div>
+            <div class="progress-circle" id="progress-Chemistry">0%</div>
+        </div>
+        <div class="courses">
+            <div class="course" onclick="startQuiz('English')">English</div>
+            <div class="course" onclick="startQuiz('Physics')">Physics</div>
+            <div class="course" onclick="startQuiz('Chemistry')">Chemistry</div>
+        </div>
+        <div id="quiz" class="quiz">
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <h2 id="course-title"></h2>
+            <div id="question-container" class="question-container">
+                <p id="question-text"></p>
+                <p id="answer-text"></p>
+            </div>
+            <button id="next-btn" onclick="nextQuestion()">Next</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+            authDomain: "database-login-530f7.firebaseapp.com",
+            projectId: "database-login-530f7",
+            storageBucket: "database-login-530f7.appspot.com",
+            messagingSenderId: "280997222442",
+            appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+        let currentCourse = '';
+        let currentQuestionIndex = 0;
+        const questions = {
+            English: [
+                { question: "What is the synonym of 'happy'?", answer: "Joyful" },
+                { question: "What is the antonym of 'dark'?", answer: "Bright" },
+                { question: "What part of speech is the word 'quickly'?", answer: "Adverb" },
+                { question: "What is the plural of 'child'?", answer: "Children" },
+                { question: "What is the past tense of 'run'?", answer: "Ran" },
+                { question: "What is a noun?", answer: "A person, place, or thing" },
+                { question: "What is an adjective?", answer: "A word that describes a noun" }
+            ],
+            Physics: [
+                { question: "What is the unit of force?", answer: "Newton" },
+                { question: "What is the speed of light?", answer: "299,792,458 m/s" },
+                { question: "What is the formula for kinetic energy?", answer: "1/2 mv^2" },
+                { question: "What is the law of inertia?", answer: "An object in motion stays in motion" },
+                { question: "Who discovered gravity?", answer: "Isaac Newton" },
+                { question: "What is the unit of electric current?", answer: "Ampere" },
+                { question: "What is the formula for velocity?", answer: "Displacement / Time" }
+            ],
+            Chemistry: [
+                { question: "What is the chemical symbol for water?", answer: "H2O" },
+                { question: "What is the atomic number of carbon?", answer: "6" },
+                { question: "What is the pH of pure water?", answer: "7" },
+                { question: "Who is known as the father of modern chemistry?", answer: "Antoine Lavoisier" },
+                { question: "What is the formula for sodium chloride?", answer: "NaCl" },
+                { question: "What is the most abundant gas in Earth's atmosphere?", answer: "Nitrogen" },
+                { question: "What is the chemical symbol for gold?", answer: "Au" }
+            ]
+        };
+
+        async function getBrowserFingerprint() {
+            const fp = await FingerprintJS.load();
+            const result = await fp.get();
+            return result.visitorId;
+        }
+
+        // Function to handle login
+        async function loginUser() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const fingerprint = await getBrowserFingerprint();
+                const userRef = doc(db, "userFingerprints", user.uid);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    const savedFingerprint = userDoc.data().fingerprint;
+                    if (savedFingerprint && savedFingerprint !== fingerprint) {
+                        // Notify the user and log them out if the fingerprint doesn't match
+                        alert("Access denied! You are already logged in from another browser. Please log out first.");
+                        await signOut(auth);
+                        return;
+                    }
+                }
+
+                // Save the fingerprint if it's the first login or if the fingerprint matches
+                await setDoc(userRef, { fingerprint });
+                
+                // User logged in successfully
+                console.log("User logged in:", user);
+                currentUser = user;
+                showUserInfo(user);
+                showLogoutButton();
+                showMainContent();
+            } catch (error) {
+                console.error("Error logging in:", error);
+                alert("Login failed: " + error.message);
+            }
+        }
+
+        // Function to handle logout
+        async function logOutUser() {
+            if (currentUser) {
+                const userRef = doc(db, "userFingerprints", currentUser.uid);
+                
+                // Clear the fingerprint from Firestore when the user logs out
+                await setDoc(userRef, { fingerprint: null });
+                
+                await signOut(auth);
+                console.log("User signed out.");
+                currentUser = null;
+                showLoginForm();
+            }
+        }
+
+        // Function to show user info
+        function showUserInfo(user) {
+            const userInfo = document.getElementById('user-info');
+            userInfo.textContent = `Logged in as: ${user.email}`;
+        }
+
+        // Function to show login form
+        function showLoginForm() {
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('logout-container').style.display = 'none';
+            document.getElementById('main-content').style.display = 'none';
+        }
+
+        // Function to show logout button
+        function showLogoutButton() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('logout-container').style.display = 'block';
+        }
+
+        // Function to show main content after login
+        function showMainContent() {
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        // Monitor auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                showUserInfo(user);
+                showLogoutButton();
+                showMainContent();
+            } else {
+                // No user is signed in
+                showLoginForm();
+            }
+        });
+
+        // Attach event listeners
+        document.getElementById('login-button').addEventListener('click', loginUser);
+        document.getElementById('logout-button').addEventListener('click', logOutUser);
+
+        // Function to handle the quiz
+        function startQuiz(course) {
+            currentCourse = course;
+            currentQuestionIndex = 0;
+            showQuiz();
+            loadQuestion();
+        }
+
+        // Function to show the quiz section
+        function showQuiz() {
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('course-title').textContent = currentCourse;
+            document.querySelector('.courses').style.display = 'none';
+        }
+
+        // Function to load the current question
+        function loadQuestion() {
+            const questionData = questions[currentCourse][currentQuestionIndex];
+            document.getElementById('question-text').textContent = questionData.question;
+            document.getElementById('answer-text').textContent = '';
+        }
+
+        // Function to handle the next question
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions[currentCourse].length) {
+                loadQuestion();
+            } else {
+                alert("Quiz completed!");
+                updateProgress();
+                goBack();
+            }
+        }
+
+        // Function to go back to the course selection
+        function goBack() {
+            document.getElementById('quiz').style.display = 'none';
+            document.querySelector('.courses').style.display = 'block';
+        }
+
+        // Function to update the course progress
+        async function updateProgress() {
+            const progressCircle = document.getElementById(`progress-${currentCourse}`);
+            const progressPercentage = Math.round(((currentQuestionIndex + 1) / questions[currentCourse].length) * 100);
+            progressCircle.textContent = `${progressPercentage}%`;
+            progressCircle.classList.add('blue');
+
+            const userRef = doc(db, "userProgress", currentUser.uid);
+            const progressData = { [currentCourse]: progressPercentage };
+            await updateDoc(userRef, progressData);
+        }
+
+        // Load user's progress when they log in
+        async function loadUserProgress() {
+            if (!currentUser) return;
+
+            const userRef = doc(db, "userProgress", currentUser.uid);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists()) {
+                const progressData = userDoc.data();
+                for (const course in progressData) {
+                    const progressCircle = document.getElementById(`progress-${course}`);
+                    if (progressCircle) {
+                        progressCircle.textContent = `${progressData[course]}%`;
+                        progressCircle.classList.add('blue');
+                    }
+                }
+            }
+        }
+
+        // Load user progress when the auth state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loadUserProgress();
+            }
+        });
+    </script>
+</body>
+
+</html>
