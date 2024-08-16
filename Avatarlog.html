@@ -80,6 +80,7 @@
 
         // Function to display selected avatar
         function displaySelectedAvatar(avatarUrl) {
+            console.log('Displaying avatar:', avatarUrl); // Debugging line
             avatarSelection.style.display = 'none';
             selectedAvatarDiv.style.display = 'block';
             userAvatarImg.src = avatarUrl;
@@ -90,6 +91,7 @@
             const user = auth.currentUser;
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
+                console.log('Saving avatar:', avatarUrl); // Debugging line
                 await setDoc(userDocRef, { avatar: avatarUrl }, { merge: true });
                 displaySelectedAvatar(avatarUrl);
             }
@@ -100,6 +102,7 @@
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
                 const userDoc = await getDoc(userDocRef);
+                console.log('User doc:', userDoc.data()); // Debugging line
 
                 if (userDoc.exists() && userDoc.data().avatar) {
                     displaySelectedAvatar(userDoc.data().avatar);
@@ -107,7 +110,7 @@
                     avatarSelection.style.display = 'flex';
                 }
             } else {
-                window.location.href = 'Demofinger.html'; // Redirect to login if not authenticated
+                window.location.href = 'login.html'; // Redirect to login if not authenticated
             }
         });
 
