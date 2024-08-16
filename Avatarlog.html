@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choose Your Avatar</title>
+    <title>Select Avatar</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -15,63 +15,114 @@
             justify-content: center;
             flex-wrap: wrap;
             gap: 20px;
+            margin-top: 20px;
         }
         .avatar {
-            width: 100px; /* Adjust this value for medium size */
+            width: 100px;
             height: 100px;
-            border: 2px solid transparent;
             border-radius: 50%;
             cursor: pointer;
-            transition: border-color 0.3s ease;
+            transition: transform 0.2s;
         }
         .avatar:hover {
-            border-color: #3498db;
+            transform: scale(1.1);
         }
         #selected-avatar {
-            margin-top: 30px;
-        }
-        #change-avatar {
             display: none;
-            margin-top: 10px;
+            margin-top: 20px;
+        }
+        #selected-avatar img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
-    <h1>Choose Your Avatar</h1>
+    <h1>Select Your Avatar</h1>
+
     <div id="avatar-selection" class="avatar-container">
-        <img src="avataaars (1).png" alt="Avatar 1" class="avatar" onclick="selectAvatar('avatar1.png')">
-        <img src="avataaars (5).png" alt="Avatar 2" class="avatar" onclick="selectAvatar('avatar2.png')">
-        <img src="avataaars (8).png" alt="Avatar 3" class="avatar" onclick="selectAvatar('avatar3.png')">
-        <!-- Add more avatars as needed -->
+        <img src="avataaars (1).png" class="avatar" data-avatar="avatar1.png" alt="Avatar 1">
+        <img src="avataaars (5).png" class="avatar" data-avatar="avatar2.png" alt="Avatar 2">
+        <img src="avataaars (8).png" class="avatar" data-avatar="avatar3.png" alt="Avatar 3">
+        <img src="avatar4.png" class="avatar" data-avatar="avatar4.png" alt="Avatar 4">
     </div>
 
     <div id="selected-avatar">
-        <img id="profile-avatar" src="" alt="Selected Avatar" style="display:none;">
-        <button id="change-avatar" onclick="changeAvatar()">Change Avatar</button>
+        <h2>Your Selected Avatar</h2>
+        <img id="user-avatar" src="" alt="Selected Avatar">
+        <br>
+        <button id="change-avatar">Change Avatar</button>
     </div>
 
-    <script>
-        function selectAvatar(avatarSrc) {
-            // Hide avatar selection
-            document.getElementById('avatar-selection').style.display = 'none';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-            // Show selected avatar
-            const profileAvatar = document.getElementById('profile-avatar');
-            profileAvatar.src = avatarSrc;
-            profileAvatar.style.display = 'block';
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-            // Show change avatar button
-            document.getElementById('change-avatar').style.display = 'inline-block';
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const avatarSelection = document.getElementById('avatar-selection');
+        const selectedAvatarDiv = document.getElementById('selected-avatar');
+        const userAvatarImg = document.getElementById('user-avatar');
+        const changeAvatarBtn = document.getElementById('change-avatar');
+
+        // Function to display selected avatar
+        function displaySelectedAvatar(avatarUrl) {
+            avatarSelection.style.display = 'none';
+            selectedAvatarDiv.style.display = 'block';
+            userAvatarImg.src = avatarUrl;
         }
 
-        function changeAvatar() {
-            // Show avatar selection again
-            document.getElementById('avatar-selection').style.display = 'flex';
-
-            // Hide selected avatar and change button
-            document.getElementById('profile-avatar').style.display = 'none';
-            document.getElementById('change-avatar').style.display = 'none';
+        // Function to handle avatar selection
+        async function handleAvatarSelection(avatarUrl) {
+            const user = auth.currentUser;
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                await setDoc(userDocRef, { avatar: avatarUrl }, { merge: true });
+                displaySelectedAvatar(avatarUrl);
+            }
         }
+
+        // Check if user has already selected an avatar
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const userDoc = await getDoc(userDocRef);
+
+                if (userDoc.exists() && userDoc.data().avatar) {
+                    displaySelectedAvatar(userDoc.data().avatar);
+                } else {
+                    avatarSelection.style.display = 'flex';
+                }
+            } else {
+                window.location.href = 'login.html'; // Redirect to login if not authenticated
+            }
+        });
+
+        // Event listener for avatar selection
+        document.querySelectorAll('.avatar').forEach(avatar => {
+            avatar.addEventListener('click', () => {
+                handleAvatarSelection(avatar.dataset.avatar);
+            });
+        });
+
+        // Event listener for changing avatar
+        changeAvatarBtn.addEventListener('click', () => {
+            avatarSelection.style.display = 'flex';
+            selectedAvatarDiv.style.display = 'none';
+        });
     </script>
 </body>
 </html>
