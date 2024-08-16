@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #content, #unauthorized {
+            display: none;
+        }
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        #avatar-selection {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .avatar {
+            margin: 10px;
+            border: 2px solid transparent;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .avatar.selected {
+            border-color: #3498db;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Protected Page</h1>
+    <div id="loader"></div>
+    <div id="content">
+        <h2>Welcome to the protected content!</h2>
+        <p>Only logged-in users can see this page.</p>
+        <div id="avatar-selection">
+            <img src="avataaars (1).png" alt="Avatar 1" class="avatar" data-avatar="avatar1.png">
+            <img src="avataaars (5).png" alt="Avatar 2" class="avatar" data-avatar="avatar2.png">
+            <img src="avataaars (8).png" alt="Avatar 3" class="avatar" data-avatar="avatar3.png">
+            <!-- Add more avatars as needed -->
+        </div>
+        <button id="save-avatar-button" style="display: none;">Save Avatar</button>
+        <button id="logout-button">Logout</button>
+    </div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+
+    <script type="module">
+        // Display loader while checking authentication status
+        const loader = document.getElementById('loader');
+        const content = document.getElementById('content');
+        const unauthorized = document.getElementById('unauthorized');
+        const avatarSelection = document.getElementById('avatar-selection');
+        const saveAvatarButton = document.getElementById('save-avatar-button');
+
+        loader.style.display = 'block';
+
+        // Lazy load Firebase modules
+        async function loadFirebaseModules() {
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+            const { getAuth, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
+            const { getFirestore, doc, setDoc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+                authDomain: "database-login-530f7.firebaseapp.com",
+                projectId: "database-login-530f7",
+                storageBucket: "database-login-530f7.appspot.com",
+                messagingSenderId: "280997222442",
+                appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+            };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+
+            let selectedAvatar = null;
+
+            // Handle avatar selection
+            avatarSelection.addEventListener('click', (event) => {
+                if (event.target.classList.contains('avatar')) {
+                    document.querySelectorAll('.avatar').forEach(avatar => avatar.classList.remove('selected'));
+                    event.target.classList.add('selected');
+                    selectedAvatar = event.target.dataset.avatar;
+                    saveAvatarButton.style.display = 'block';
+                }
+            });
+
+            // Save selected avatar to the user's profile
+            saveAvatarButton.addEventListener('click', async () => {
+                const user = auth.currentUser;
+                if (user && selectedAvatar) {
+                    const userRef = doc(db, "users", user.uid);
+                    await setDoc(userRef, { avatar: selectedAvatar }, { merge: true });
+                    alert("Avatar saved successfully!");
+                    saveAvatarButton.style.display = 'none';
+                }
+            });
+
+            // Check if user is authenticated
+            onAuthStateChanged(auth, async (user) => {
+                loader.style.display = 'none'; // Hide loader
+
+                if (user) {
+                    // User is signed in, show the protected content
+                    const userRef = doc(db, "users", user.uid);
+                    const userDoc = await getDoc(userRef);
+                    
+                    if (userDoc.exists()) {
+                        const userData = userDoc.data();
+                        if (userData.avatar) {
+                            document.querySelectorAll('.avatar').forEach(avatar => {
+                                if (avatar.dataset.avatar === userData.avatar) {
+                                    avatar.classList.add('selected');
+                                }
+                            });
+                        }
+                    }
+
+                    content.style.display = 'block';
+                } else {
+                    // No user is signed in, redirect to login page faster
+                    unauthorized.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = 'login.html'; // Replace 'login.html' with the actual path to your login page
+                    }, 1000); // Redirect after 1 second
+                }
+            });
+
+            // Logout function
+            document.getElementById('logout-button').addEventListener('click', () => {
+                signOut(auth)
+                    .then(() => {
+                        console.log("User signed out.");
+                        window.location.href = 'login.html'; // Redirect to login page after logout
+                    })
+                    .catch((error) => {
+                        console.error("Error signing out:", error);
+                        alert("Logout failed: " + error.message);
+                    });
+            });
+        }
+
+        loadFirebaseModules();
+    </script>
+</body>
+</html>
