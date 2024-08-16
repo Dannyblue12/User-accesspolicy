@@ -45,7 +45,7 @@
         <img src="avataaars (1).png" class="avatar" data-avatar="avatar1.png" alt="Avatar 1">
         <img src="avataaars (5).png" class="avatar" data-avatar="avatar2.png" alt="Avatar 2">
         <img src="avataaars (8).png" class="avatar" data-avatar="avatar3.png" alt="Avatar 3">
-        <img src="avatar4.png" class="avatar" data-avatar="avatar4.png" alt="Avatar 4">
+        <img src="avataaars (10).png" class="avatar" data-avatar="avatar4.png" alt="Avatar 4">
     </div>
 
     <div id="selected-avatar">
@@ -61,12 +61,12 @@
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+            authDomain: "database-login-530f7.firebaseapp.com",
+            projectId: "database-login-530f7",
+            storageBucket: "database-login-530f7.appspot.com",
+            messagingSenderId: "280997222442",
+            appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -107,7 +107,7 @@
                     avatarSelection.style.display = 'flex';
                 }
             } else {
-                window.location.href = 'login.html'; // Redirect to login if not authenticated
+                window.location.href = 'Demofinger.html'; // Redirect to login if not authenticated
             }
         });
 
