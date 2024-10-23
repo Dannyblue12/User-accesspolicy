@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Flashcards</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #388E3C;
+            --dark: #212121;
+            --light: #F3F3F3;
+             --background-color: #f4f4f4;
+        }
+[data-theme="dark"] {
+    --background-color: #121212;
+}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+                #content,
+        #unauthorized {
+            display: none;
+        }
+
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        .container {
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .grid-item {
+            background-color: var(--primary);
+            padding: 20px;
+            width: 115px;
+            height: 160px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            color: white;
+            font-size: 18px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .full-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            transition: opacity 0.5s ease;
+        }
+
+        .full-screen .card {
+            width: 300px;
+            height: 600px;
+            perspective: 1000px;
+            position: relative;
+        }
+
+        .card__inner {
+            width: 100%;
+            height: 100%;
+            transition: transform 1s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .card__inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card__face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0px 3px 18px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .card__face--front {
+            background-image: linear-gradient(to bottom right, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFF;
+            font-size: 22px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .card__face--back {
+            background-color: #4CAF50;
+            transform: rotateY(180deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            color: #000;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .cancel-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        /* Next and Prev buttons */
+        .nav-btn {
+            position: absolute;
+            bottom: 20px;
+            width: 100px;
+            padding: 15px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .nav-btn:hover {
+            background-color: var(--secondary);
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+  <div id="toggle-theme">
+        <label class="toggle-switch">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider"></span>
+        </label>
+    </div>
+        <div id="loader"></div>
+    <div id="content"></div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+
+    <script src="Flashwork.js"></script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questions</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        margin: 0;
+        padding: 0;
+        font-size: 16px;
+        line-height: 1.6;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    :root {
+        --background-color: #f9fafc;
+        --text-color: #333;
+        --block-color: #f1f1f1;
+        --container-bg: #ffffff;
+        --container-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Dark mode theme */
+    [data-theme="dark"] {
+        --background-color: #020D19;
+        --text-color: #fff;
+        --block-color: #1f1f1f;
+        --container-bg: #121212;
+        --container-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+    }
+
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 25px;
+        background-color: var(--container-bg);
+        border-radius: 15px;
+        box-shadow: var(--container-shadow);
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+                    #content,
+        #unauthorized {
+            display: none;
+        }
+
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    h1 {
+        color: #4CAF50;
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 1.2em;
+        font-weight: 600;
+    }
+
+    .question-block {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .question-block div {
+        background-color: var(--block-color);
+    borer: 0.5px solid var(--text-color);
+    color: var(--text-color);
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        cursor: pointer;
+        transform: translateY(50px);
+        opacity: 0;
+        animation: popFadeUp 0.5s ease forwards;
+        transition: background-color 0.3s;
+    }
+
+    .question-block div:hover {
+        transform: translateY(-5px);
+    }
+
+    #question-image {
+        max-width: 100%;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .solution h2 {
+        text-align: center;
+        color: #004643;
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+    }
+
+    .answer {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #ff6b6b;
+        text-align: center;
+        margin: 30px 0;
+    }
+
+    .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .step {
+        background-color: var(--block-color);
+        padding: 20px;
+        border-radius: 12px;
+        font-size: 1rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+
+    .step b {
+        font-size: 1.1rem;
+    }
+
+    .step:hover {
+        transform: translateY(-5px);
+    }
+
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 40px;
+    }
+
+    .nav-button {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: #ff6b6b;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+    .navigation-header{
+      display: inline-block;
+        padding: 12px 30px;
+        color: white;
+        background-color: #ff6b6b;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+a:link { text-decoration: none; }
+    .nav-button:hover {
+      color:#fff;
+        background-color: #ff4b4b;
+    }
+
+    .nav-button:focus {
+        outline: none;
+    }
+/* Add this CSS for sequential animation */
+.animate-question {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: popFadeUp 0.2s forwards;
+}
+
+    /* Animation for pop and fade up */
+    @keyframes popFadeUp {
+        0% {
+            opacity: 0;
+            transform: translateY(50px) scale(0.95);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    </style>
+</head>
+<body>
+      <div id="toggle-theme" style="display:none">
+        <label class="toggle-switch">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider"></span>
+        </label>
+    </div>
+    <!-- Question Selection Page -->
+    <div id="loader"></div>
+    <div id="content"></div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+    <!-- JavaScript for the Sequential Animation -->
+    <script src="MthsolA.js"></script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign-Up with Paystack</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;1,300&display=swap");
+        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+        
+        body {
+            margin: 0;
+            font-family: "Roboto", sans-serif;
+        }
+
+        .App {
+            text-align: center;
+            font-family: "Roboto";
+            letter-spacing: 0.1rem;
+        }
+
+        #container {
+            display: flex;
+            flex-direction: row;
+            margin: 5% auto;
+            width: 90%;
+            max-width: 635px;
+            background: white;
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .item, .checkout {
+            width: 50%;
+            position: relative;
+        }
+
+        .item-image {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .overlay-effect {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            opacity: 0.2;
+            background-color: #303030;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .item-details {
+            position: absolute;
+            bottom: 0;
+            margin-bottom: 5px;
+            margin-left: 20px;
+            color: #84a17d;
+            text-align: left;
+        }
+
+        .item-details__title {
+            font-size: 22px;
+            color: green;
+            font-weight: bold;
+            text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .item-details__amount {
+            font-weight: bolder;
+        }
+
+        .checkout {
+            width: 50%;
+            background: #84a17d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 30px;
+        }
+
+        .checkout-field {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .checkout-field label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        .checkout-field input {
+            width: 90%;
+            background: none;
+            border: none;
+            border-bottom: 2px solid white;
+            padding: 10px 5px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .checkout-field input:focus {
+            border-bottom-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(255, 255, 255, 0.2);
+        }
+
+        .checkout-field input:focus + label,
+        .checkout-field input:not(:placeholder-shown) + label {
+            top: -14px;
+            left: 5px;
+            font-size: 10px;
+            color: #e0eafc;
+        }
+
+        .form-submit {
+            margin-top: 40px;
+        }
+
+        .paystack-button {
+            cursor: pointer;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            background-color: green;
+            font-weight: bold;
+            color: #e0eafc;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            height: 45px;
+            margin-top: 40px;
+        }
+
+        .paystack-button:hover {
+            background-color: #dadada;
+        }
+
+        .paystack-button:focus {
+            outline: none;
+        }
+
+        /* Popup CSS */
+        .popup {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .popup img {
+            width: 100px;
+            margin-bottom: 15px;
+        }
+
+        .popup h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .popup a {
+            color: #84a17d;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            #container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .item, .checkout {
+                width: 100%;
+                height: auto;
+            }
+
+            .checkout {
+                padding: 20px 0;
+            }
+        }
+        /* Center loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none; /* Initially hidden */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Input container styling */
+        #auth-container {
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        /* Eye icon */
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 20px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1></h1>
+    <div id="auth-container">
+        <div class="loader" id="loader"></div> <!-- Loader element -->
+        <div class="App">
+            <div id="container">
+                <div class="item">
+                    <img src="atom-illustration-model-with-electrons-neutron-isolated_1284-53084.jpg" alt="Item Image" class="item-image">
+                    <div class="overlay-effect"></div>
+                    <div class="item-details">
+                        <div class="item-details__title">CBT Practice past question for 100lv</div>
+                        <div class="item-details__amount">₦700</div>
+                    </div>
+                </div>
+                <div class="checkout">
+                    <form id="paymentForm" class="checkout-form">
+                        <div class="checkout-field">
+                            <input type="text" id="name" placeholder="Name" required>
+                        </div>
+                        <div class="checkout-field">
+                            <input type="email" id="email" placeholder="Email" required>
+                        </div>
+                        <div class="checkout-field">
+                            <input type="password" id="password" placeholder="Password" required>
+                            <span class="material-icons show-password">visibility</span>
+                        </div>
+                        <div class="checkout-field">
+                            <label for="amount"></label>
+                            <input type="tel" id="amount" value="700" disabled />
+                        </div>
+                        <div class="form-submit">
+                            <button type="button" class="paystack-button" id="signup-button">Pay ₦700</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paystack JS Library -->
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+            authDomain: "database-login-530f7.firebaseapp.com",
+            projectId: "database-login-530f7",
+            storageBucket: "database-login-530f7",
+            messagingSenderId: "280997222442",
+            appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Function to handle the payment and sign-up process
+        function payWithPaystack() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Save user data in localStorage before starting the payment process
+            localStorage.setItem('name', name);
+            localStorage.setItem('email', email);
+            localStorage.setItem('password', password);
+
+            // Paystack payment initialization
+            const paystack = new PaystackPop();
+            paystack.newTransaction({
+                key: 'pk_live_64c23d6d8a53dbf350c549dce4e7e7423f146998', // Replace with your Paystack public key
+                email: email,
+                amount: 70000, // Amount in kobo (5000 NGN)
+                currency: 'NGN',
+                callback: function(response) {
+                    // Payment was successful, proceed with sign-up
+                    console.log('Payment successful. Transaction reference: ' + response.reference);
+                    
+                    createUserWithEmailAndPassword(auth, email, password)
+                        .then((userCredential) => {
+                            const user = userCredential.user;
+                            console.log("User signed up:", user);
+
+                            // Store user name and email in Firestore
+                            setDoc(doc(db, "users", user.uid), {
+                                name: name,
+                                email: user.email,
+                                createdAt: new Date()
+                            });
+
+                            alert("Sign-up successful and payment completed!");
+
+                            // Clear localStorage after successful sign-up
+                            localStorage.removeItem('name');
+                            localStorage.removeItem('email');
+                            localStorage.removeItem('password');
+                        })
+                        .catch((error) => {
+                            console.error("Error signing up:", error);
+                            alert("Sign-up failed: " + error.message);
+                        });
+                },
+                onClose: function() {
+                    alert('Payment process was canceled.');
+                }
+            });
+        }
+
+        // Check if there's any saved session in localStorage
+        window.addEventListener('load', () => {
+            const name = localStorage.getItem('name');
+            const email = localStorage.getItem('email');
+            const password = localStorage.getItem('password');
+            
+            if (email && password) {
+                // Automatically start payment process if session is found
+                payWithPaystack();
+            }
+        });
+const passwordInput = document.getElementById("password");
+        const showPasswordIcon = document.querySelector(".show-password");
+
+        showPasswordIcon.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                showPasswordIcon.textContent = "visibility_off";
+            } else {
+                passwordInput.type = "password";
+                showPasswordIcon.textContent = "visibility";
+            }
+        });
+        
+        // Attach event listener to the sign-up button
+        document.getElementById('signup-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            payWithPaystack();
+        });
+
+    </script>
+</body>
+</html>
