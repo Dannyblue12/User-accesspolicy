@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0 auto;
+            padding: 0 auto;
+            background-color: var(--background-color);
+    color: var(--text-color);
+            overfow: hidden; /* Disable page scroll */
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+:root {
+    --background-color: #f4f4f4;
+    --text-color: #333;
+    --card-background: #fff;
+    --header-background: #4CAF50;
+    --footer-background: #fff;
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+    --button-hover-background: #4CAF50;
+}
+
+[data-theme="dark"] {
+    --background-color: #121212;
+    --text-color: #fff;
+    --card-background: #1e1e1e;
+    --header-background: #4CAF50;
+    --footer-background: #222;
+    --box-shadow-color: rgba(0, 0, 0, 0.1);
+    --button-hover-background: #555;
+}
+
+        /* Header Styling */
+        header {
+            width: 90%;
+            padding: 40px 20px;
+            text-align: left;
+            background-color: var(--header-background);
+    box-shadow: 0 4px 6px var(--box-shadow-color);
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+            margin: 0;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+header h2: {
+  color: var(--text-color);
+}
+ a{
+  text-decoration:none;
+  color: var(--text-color);
+}
+        /* Swipe-up animation for small text */
+        header p {
+            font-size: 0.9em;
+            color: white;
+            margin-top: 10px;
+            position: relative;
+            animation: swipeUp 1s ease-in-out 1s forwards;
+            opacity: 0;
+        }
+
+        @keyframes swipeUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .container-wrapper {
+            overflow: hidden;
+            position: relative;
+            animation: fadeInUp 1s ease-out 0.5s; /* Added delay */
+        }
+
+        .container {
+            display: flex;
+            transition: transform 0.3s ease;
+            width: 300%; /* Twice the width to hold both sections side by side */
+        }
+
+        .container section {
+            width: 73.33%; /* Each section takes half the width of the container */
+            padding: 20px;
+        }
+
+        .projects {
+            display: flex;
+            position: relative;
+            top:50px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .project {
+            flex: 1;
+            margin: 18px;
+            top:28px;
+            max-width: calc(50% - 20px);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            background-color: var(--card-background);
+        }
+        .project img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        .project h2 {
+            margin: 0;
+            padding: 10px;
+            font-size: 1.2em;
+            background-color: var(--card-background);
+            text-align: center;
+        }
+        .footer-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: var(--footer-background);
+            box-shadow: 0 -2px 6px var(--box-shadow-color);
+            z-index: 10;
+        }
+        .footer-nav .tab {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            flex-grow: 1;
+            transition: background-color 0.3s ease;
+        }
+        .footer-nav .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .footer-nav .tab svg {
+            width: 24px;
+            height: 24px;
+        }
+        .footer-nav .slider {
+            position: absolute;
+            left:0;
+            bottom: 0;
+            height: 9px;
+            width: 33.33%;
+            background-color: #4CAF50;
+            transition: transform 0.3s ease;
+        }
+        .profile-block {
+          position:relative;
+          left:0;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            width:400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+        }
+
+        #profile-page {
+            max-width: 700px;
+            margin: 50px auto;
+        }
+
+        #profile-page h2, h3 {
+            font-weight: 600;
+        }
+
+        .profile-picture {
+            border-radius: 50%;
+            background-color: lightgreen;
+            width: 120px;
+            height: 120px;
+            margin: 20px auto;
+        }
+
+        /* Spinner Loader */
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid lightgreen;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Theme Toggle */
+        #theme-toggle .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        #theme-toggle .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        #theme-toggle .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            cursor: pointer;
+            transition: 0.4s;
+        }
+
+        #theme-toggle .slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.4s;
+        }
+
+        input:checked + .slider {
+            background-color: lightgreen;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        #date-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #date-grid div {
+            width: 40px;
+            height: 40px;
+            background-color: lightgreen;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            margin: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: lightgreen;
+            border: none;
+            padding: 10px 20px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: darkgreen;
+        }
+
+
+        @media (max-width: 768px) {
+            .project {
+                max-width: calc(100% - 20px);
+            }
+        }
+        #night{
+          position:relative;
+          left:80px;
+        }
+                #toggle-theme {
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .sliders {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .sliders:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .sliders {
+            background-color: #2196F3;
+        }
+
+        input:checked + .sliders:before {
+            transform: translateX(26px);
+        }
+ .video {
+            padding: 20px;
+        }
+        .new {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .section-label {
+            font-size: 27px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .grid-item {
+            position: relative;
+            cursor: pointer;
+        }
+        .grid-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .grid-item h3 {
+            font-size: 16px;
+            margin: 10px 0 0;
+            padding: 0;
+            color: #000;
+        }
+        .overlay {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 2px 5px;
+            font-size: 12px;
+        }
+       /* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    right: 10px;
+    top: 0;
+    width: 50%;
+    height: 50%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    position: relative;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Responsive Iframe */
+#videoFrame {
+    width: 100%;
+    height: auto;
+    max-width: 560px; /* Moderate width */
+    aspect-ratio: 16 / 9; /* Maintain 16:9 aspect ratio */
+}
+       
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .button-group {
+            margin-top: 20px;
+        }
+        .download-button,
+        .view-full-button,
+        .cancel-button {
+            margin: 10px 5px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 4px;
+        }
+        .download-button:hover,
+        .view-full-button:hover,
+        .cancel-button:hover {
+            background-color: #0056b3;
+        }
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            position: relative;
+            top: 20%;
+            right: 0px;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-image {
+            width: 100px;
+            height: auto;
+            display: none;
+            position: absolute;
+            top: 50%;
+            right: 0%;
+            transform: translate(-50%,-50%);
+        }
+        .see-more-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .see-more-button:hover {
+            background-color: #0056b3;
+        }
+
+        @media (min-width: 600px) {
+            #grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 900px) {
+            #grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Hello there</h1>
+        <p>Welcome back, ready to learn?</p>
+    </header>
+
+
+    <div class="container-wrapper">
+        <div class="container">
+            <section id="cbtContent" class="active">
+                <div class="projects">
+                    <div class="project">
+                        <a href="Solutioncourse.html"><img src="course-icon-9.jpg" alt="Physics">
+                        <h2>Solution Manuals</h2></a>
+                    </div>
+                    <div class="project">
+                        <a href="Cbtcourse.html"><img src="14274201.png" alt="Chemistry">
+                        <h2>CBT practice</h2></a>
+                    </div>
+                </div>
+                <div class="projects">
+                    <div class="project">
+                        <a href="Flashcourse.html"><img src="images.png" alt="English">
+                        <h2>Flashcards</h2></a>
+                    </div>
+                    <div class="project">
+                        <img src="istockphoto-1158691457-612x612.jpg" alt="Biology">
+                        <a href="Tutorialvid.html"><h2>Video tutorial</h2>
+                    </div></a>
+                </div>
+            </section>
+            <section id="tutoringContent">
+                <h2>Tutoring Videos</h2>
+                <p>Here are some helpful tutoring videos for your courses:</p>
+               <div class="video">
+        <div class="section">
+            <div class="section-label">Mathematics</div>
+            <div id="grid-physics" class="grid"></div>
+            <a href="physics-more.html" class="see-more-button">See More</a>
+        </div>
+        <div class="section">
+            <div class="section-label">Chemistry</div>
+            <div id="grid-chemistry" class="grid"></div>
+            <a href="chemistry-more.html" class="see-more-button">See More</a>
+        </div>
+        <div class="section">
+            <div class="section-label">Mathematics</div>
+            <div id="grid-mathematics" class="grid"></div>
+            <a href="mathematics-more.html" class="see-more-button">See More</a>
+        </div>
+    </div>
+    <div class="loader" id="loader"></div>
+
+
+    <div id="videoLoader" class="loader"></div>
+
+   <div id="videoModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <iframe id="videoFrame" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+            <div class="button-group">
+                <a id="downloadButton" class="download-button" target="_blank">Download Video</a>
+                <button id="viewFullButton" class="view-full-button">View Full</button>
+                <button id="cancelButton" class="cancel-button" style="display: none;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+            </section>
+             <section id="profile-page">
+                       <section id="greeting-profile" class="profile-block">
+            <h2 id="greeting">Good <span id="time-period">Morning</span>, <span id="username">User</span>!</h2>
+            <div class="profile-picture">
+                <!-- Profile Image -->
+            </div>
+        </section>
+
+        <!-- Theme Toggle -->
+        <section id="toggle-theme" class="profile-block">
+    
+        <label class="toggle-switch">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="sliders"></span>
+        </label>
+            <p id="night"><b>Night mode</b></p>
+        </section>
+
+        <!-- Date Block -->
+        <section id="date-block" class="profile-block">
+            <h3>Upcoming Dates</h3>
+            <div id="date-grid">
+                <!-- Date boxes from present to November 4th will be dynamically added -->
+            </div>
+        </section>
+
+        <!-- Feedback Section -->
+        <section id="feedback-section" class="profile-block">
+            <h3>Give Us Feedback</h3>
+            <textarea id="feedback" placeholder="Write your feedback..."></textarea>
+            <button id="send-feedback">Send via WhatsApp</button>
+        </section>
+
+        <!-- Login/Logout Section -->
+        <section id="auth-section" class="profile-block">
+            <div class="spinner" id="auth-spinner"></div>
+            <form id="login-form" style="display: none;">
+                <input type="email" id="email" placeholder="Email">
+                <input type="password" id="password" placeholder="Password">
+                <button type="button" id="login-button">Login</button>
+            </form>
+            <div id="logout-container" style="display: none;">
+                <button type="button" id="logout-button">Logout</button>
+            </div>
+            </section>
+        </div>
+    </div>
+
+        </div>
+    </div>
+
+    <div class="footer-nav">
+        <div class="tab active" id="cbtTab">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 4H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H6V6h12v12zm-3-6H9v-2h6v2zm0 3H9v-2h6v2zm0-7H9V7h6v2z"/></svg>
+            <span>CBT Practice</span>
+        </div>
+        <div class="tab" id="tutoringTab">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17.93c-1.2.26-2.45.26-3.65 0C8.19 19.72 7.4 19.1 6.76 18.3c-.36-.45-.66-.95-.89-1.5-.39-.94-.68-1.97-.84-3.02-.03-.19-.05-.37-.07-.56.21-.07.43-.13.64-.19 1.29-.34 2.62-.19 3.74.4.3.17.57.39.81.64.12.12.23.25.33.38.24.29.46.6.67.91.05.08.1.16.15.24.38.57.87 1.07 1.42 1.44.22.14.46.25.7.34.06.02.13.05.2.07.01.02.02.03.04.05-.02.07-.03.14-.05.21-.05.23-.1.46-.17.69-.18.64-.4 1.25-.65 1.85-.3.74-.63 1.45-.98 2.14-.12.23-.27.45-.43.66-.26.35-.53.68-.81 1-.3.35-.61.68-.95.98-.01.01-.03.02-.04.03-.1.07-.2.14-.3.21z"/></svg>
+            <span>Tutoring Videos</span>
+        </div>
+                <div class="tab" data-target="profileContent">
+            <span class="material-icons-outlined">person</span>
+            <p>Profile</p>
+        </div>
+        <div class="slider"></div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+      const firebaseConfig = {
+          apiKey: "AIzaSyAf0mERQ9WiocU34BQx4Isr48Hs1VfpbDU",
+          authDomain: "database-login-530f7.firebaseapp.com",
+          projectId: "database-login-530f7",
+          storageBucket: "database-login-530f7.appspot.com",
+          messagingSenderId: "280997222442",
+          appId: "1:280997222442:web:ad80301ccb4337dfb70b53"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      setPersistence(auth, browserLocalPersistence);
+
+      const authSpinner = document.getElementById('auth-spinner');
+
+      function updateGreeting() {
+          const now = new Date();
+          const hours = now.getHours();
+          const timePeriodElement = document.getElementById('time-period');
+          if (hours < 12) {
+              timePeriodElement.textContent = 'Morning';
+          } else if (hours < 18) {
+              timePeriodElement.textContent = 'Afternoon';
+          } else {
+              timePeriodElement.textContent = 'Evening';
+          }
+      }
+
+      function populateDateBlock() {
+          const dateGrid = document.getElementById('date-grid');
+          const today = new Date();
+          const endDate = new Date(today.getFullYear(), 10, 4); // November 4th
+
+          while (today <= endDate) {
+              const dateBox = document.createElement('div');
+              dateBox.textContent = `${today.getDate()}`;
+              dateGrid.appendChild(dateBox);
+              today.setDate(today.getDate() + 1);
+          }
+      }
+
+      function showUserInfo(user) {
+          document.getElementById('username').textContent = user.email;
+      }
+
+      onAuthStateChanged(auth, (user) => {
+          authSpinner.style.display = 'none';
+          if (user) {
+              showUserInfo(user);
+              document.getElementById('login-form').style.display = 'none';
+              document.getElementById('logout-container').style.display = 'block';
+          } else {
+              document.getElementById('login-form').style.display = 'none';
+              document.getElementById('logout-container').style.display = 'none';
+          }
+      });
+
+      document.getElementById('login-button').addEventListener('click', async () => {
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+          authSpinner.style.display = 'block';
+
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+document.getElementById('logout-button').addEventListener('click', async () => {
+    await signOut(auth);
+});
+    // WhatsApp feedback handler
+// Initialize
+updateGreeting();
+populateDateBlock();
+      const themeCheckbox = document.getElementById('theme-checkbox');
+const currentTheme = localStorage.getItem('theme') || 'light';
+
+// Apply the saved theme on page load
+if (currentTheme === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
+    themeCheckbox.checked = true;
+}
+
+themeCheckbox.addEventListener('change', () => {
+    if (themeCheckbox.checked) {
+        document.body.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.body.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+});
+
+function vod() {
+            document.body.style.backgroundImage = "linear-gradient(transparent, transparent)";
+
+            const sections = {
+                physics: [
+                    { videoId: "f8dYA3GOsd4" },
+                    { videoId: "U4U-GVZmGoM" },
+                    { videoId: "Ox3koYqNBUI" },
+                    { videoId: "I3v8zjP0LQc" }
+                ],
+                chemistry: [
+                    { videoId: "ryHnC0wqTTo" },
+                    { videoId: "L4z67u7TNFY" },
+                    { videoId: "djT6-YamHaA" },
+                    { videoId: "YDV1mo7QlnA" }
+                ],
+                mathematics: [
+                    { videoId: "Si2vmzUWfJE" },
+                    { videoId: "PmvLB5dIEp8" },
+                    { videoId: "MYyXULpYubo" },
+                    { videoId: "iqVtGNQAC2E" }
+                ]
+            };
+
+            const apiKey = 'AIzaSyBYqsw3j4NmhEmUMdrpYCd2Ya19tPLSr3c';
+            const loader = document.getElementById("loader");
+            const errorImage = document.getElementById("errorImage");
+            const videoLoader = document.getElementById("videoLoader");
+
+            loader.style.display = "block"; // Show loader
+
+            let fetchPromises = [];
+            for (const [section, videos] of Object.entries(sections)) {
+                const grid = document.getElementById(`grid-${section}`);
+
+                videos.forEach(video => {
+                    const fetchPromise = fetch(`https://www.googleapis.com/youtube/v3/videos?id=${video.videoId}&key=${apiKey}&part=snippet,contentDetails`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const videoData = data.items[0];
+                            const snippet = videoData.snippet;
+                            const contentDetails = videoData.contentDetails;
+
+                            const thumbnailUrl = snippet.thumbnails.high.url;
+                            const title = snippet.title;
+                            const duration = contentDetails.duration.replace('PT', '').replace('H', ':').replace('M', ':').replace('S', '');
+
+                            const gridItem = document.createElement("div");
+                            gridItem.className = "grid-item";
+
+                            const imgElement = document.createElement("img");
+                            imgElement.src = thumbnailUrl;
+                            imgElement.alt = title;
+
+                            const titleElement = document.createElement("h3");
+                            titleElement.textContent = title;
+
+                            const overlayElement = document.createElement("div");
+                            overlayElement.className = "overlay";
+                            overlayElement.textContent = duration;
+
+                            
+                        gridItem.appendChild(imgElement);
+                            gridItem.appendChild(overlayElement);
+                            gridItem.appendChild(titleElement);
+
+                            gridItem.addEventListener("click", () => {
+                                openVideoModal(video.videoId);
+                            });
+
+                            grid.appendChild(gridItem);
+                        });
+
+                    fetchPromises.push(fetchPromise);
+                });
+            }
+
+            Promise.all(fetchPromises)
+                .then(() => {
+                    loader.style.display = "none"; // Hide loader when done
+                })
+                .catch(error => {
+                    console.error('Error fetching video data:', error);
+                    loader.style.display = "none"; // Hide loader
+                    errorImage.style.display = "block"; // Show error image
+                });
+
+            function openVideoModal(videoId) {
+                const modal = document.getElementById("videoModal");
+                const videoFrame = document.getElementById("videoFrame");
+                const downloadButton = document.getElementById("downloadButton");
+                const viewFullButton = document.getElementById("viewFullButton");
+                const cancelButton = document.getElementById("cancelButton");
+
+                videoLoader.style.display = "block"; // Show video loader
+                videoFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                downloadButton.href = `https://en.savefrom.net/#url=https://www.youtube.com/watch?v=${videoId}`;
+
+                videoFrame.onload = () => {
+                    videoLoader.style.display = "none"; // Hide video loader when iframe loads
+                };
+
+                modal.style.display = "block";
+
+                const closeButton = document.getElementsByClassName("close")[0];
+                closeButton.addEventListener("click", () => {
+                    videoFrame.src = "";
+                    modal.style.display = "none";
+                });
+
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        videoFrame.src = "";
+                        modal.style.display = "none";
+                    }
+                };
+
+                viewFullButton.addEventListener("click", () => {
+                    videoFrame.style.width = "100%";
+                    videoFrame.style.height = "100vh";
+                    modal.querySelector(".modal-content").style.width = "100vw";
+                    modal.querySelector(".modal-content").style.height = "100vh";
+                    viewFullButton.style.display = "none";
+                    cancelButton.style.display = "inline-block";
+                });
+
+                cancelButton.addEventListener("click", () => {
+                    videoFrame.style.width = "560px";
+                    videoFrame.style.height = "315px";
+                    modal.querySelector(".modal-content").style.width = "80%";
+                    modal.querySelector(".modal-content").style.height = "auto";
+                    viewFullButton.style.display = "inline-block";
+                    cancelButton.style.display = "none";
+                });
+            }
+        }
+
+        window.onload = vod;
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.footer-nav .tab');
+            const slider = document.querySelector('.footer-nav .slider');
+            const container = document.querySelector('.container');
+
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('click', function () {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    slider.style.transform = `translateX(${index * 100}%)`;
+                    container.style.transform = `translateX(${index * -33.33}%)`;
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
+
+
+

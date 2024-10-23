@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer's Bank Wallet</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f6f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 90%;
+    max-width: 600px;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    color: #2e7d32;
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.overview-panel {
+    background-color: #e8f5e9;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.overview-panel h2 {
+    font-size: 20px;
+    color: #1b5e20;
+}
+
+.balance {
+    background-color: #1b5e20;
+    color: white;
+    padding: 15px;
+    font-size: 32px;
+    border-radius: 12px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.analytics {
+    margin-bottom: 30px;
+}
+
+.analytics h2 {
+    font-size: 20px;
+    margin-bottom: 15px;
+    color: #2e7d32;
+}
+
+/* Transaction History */
+.transactions h2 {
+    font-size: 20px;
+    color: #2e7d32;
+    margin-bottom: 15px;
+}
+
+.transaction-item {
+    background-color: #f1f8e9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-item span {
+    color: #4caf50;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.transaction-item p {
+    color: #555;
+    font-size: 14px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Wallet Overview</h1>
+        
+        <!-- Overview Panel -->
+        <div class="overview-panel">
+            <h2>Total Balance</h2>
+            <div class="balance">
+                <p>₦ 250,000</p>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="analytics">
+            <h2>Performance Analytics</h2>
+            <canvas id="profitChart"></canvas> <!-- Chart for visual analytics -->
+        </div>
+
+        <!-- Transaction History -->
+        <div class="transactions">
+            <h2>Recent Commissions</h2>
+            <div class="transaction-item">
+                <span>₦ 15,000</span>
+                <p>From sale on 2024-10-01</p>
+            </div>
+            <div class="transaction-item">
+                <span>₦ 12,500</span>
+                <p>From sale on 2024-09-15</p>
+            </div>
+            <div class="transaction-item">
+                <span>₦ 8,000</span>
+                <p>From sale on 2024-09-10</p>
+            </div>
+            <!-- More transaction items -->
+        </div>
+    </div>
+
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('profitChart').getContext('2d');
+        const profitChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Sept 1', 'Sept 15', 'Oct 1'],
+                datasets: [{
+                    label: 'Commissions Earned (₦)',
+                    data: [8000, 12500, 15000],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

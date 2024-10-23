@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics101 cbt</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css">
+<style>
+  .header {
+    background-color: #28a745;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    position: fixed;
+    dislay: none;
+    top: 0;
+    width: 100%;
+    z-index: 50;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .header h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+  }
+  :root {
+    --background-color: #fff;
+    --text-color: #000;
+    --container-bg: #fff;
+    --container-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark mode theme variables */
+  [data-theme="dark"] {
+    --background-color: #020D19;
+    --text-color: #fff;
+    --container-bg: #1e2a35;
+    --container-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+  }
+.slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        #toggle-theme {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+                #content,
+        #unauthorized {
+            display: none;
+        }
+
+        #loader {
+            display: none;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+h1 {
+  color: #396;
+  font-weight: 400;
+  font-size: 30px;
+  margin: 20px 0;
+}
+  .container {
+    margin-top: 100px;
+    padding: 20px;
+    width: 320px;
+    max-width: 990px;
+    background-color: var(--container-bg);
+    box-shadow: var(--container-shadow);
+    border-radius: 10px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+.game {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  padding: 0;
+  color: #000;
+  background: transparent;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0), inset 0 0 rgba(0, 0, 0, .0);
+  width: 400px;
+  height: auto;
+  overflow-y: visible;
+  border-radius: 20px;
+  outline: none;
+}
+
+.ques.night {
+  background: #000000ec;
+  color: #fff;
+}
+
+  #solutionButton {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s;
+  }
+
+  #solutionButton:hover {
+    background-color: #218838;
+  }
+  
+.content {
+  background-color: #fff;
+}
+
+  .question-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  #question img {
+    max-width: 100%;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  #question {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: var(--text-color);
+  }
+
+#solution {
+  font-size: 18px;
+  letter-spacing: 0.1rem;
+  color: var(--text-color);
+}
+
+#score{
+  position: relative;
+  dispay:none;
+  background-color: green;
+  width: 350px;
+  margin: 0 auto;
+  height: 35px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 300;
+  font-family: Lily;
+  border-bottom-right-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+
+.line {
+  color: black;
+  padding-bottom: 20px;
+}
+
+#options {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.btn {
+  background-color: var(--container-bg);
+    border: 2px solid var(--text-color);
+    color: var(--text-color);
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  margin: 5px;
+  transition: transform 0.2s ease;
+  box-sizing: border-box;
+  width: 90%;
+  dispay: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.show-solution-img {
+  width: 30px;
+  height: auto;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.option-letter {
+  font-weight: bold;
+  display: flex;
+  margin-right: 0px;
+}
+
+ @media (max-width: 600px) {
+    .header {
+      flex-direction: column;
+    }
+    .header h2 {
+      font-size: 18px;
+    }
+    .header .tracker {
+      font-size: 14px;
+    }
+    .btn {
+      font-size: 16px;
+    }
+  }
+  
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 330px;
+    background-color: green;
+    border-radius: 19px;
+    text-align: center;
+    display: none;
+    overflow: hidden;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.popup-header {
+    height: 30px;
+    background-color: #2d6a4f; /* Dark green background */
+}
+
+.popup-content {
+    padding: 20px;
+}
+
+.popup h2 {
+    margin: 0 0 20px 0;
+    font-size: 32px;
+}
+
+.popup p {
+    font-size: 28px;
+    font-weight: bold;
+    margin: 20px 0;
+}
+
+.popup button {
+    width: 80%;
+    padding: 15px;
+    margin: 10px 0;
+    font-size: 24px;
+    color: white;
+    background-color: #2d6a4f;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.popup button:hover {
+    background-color: darkgreen;
+}
+ .assessment {
+            display: none;
+            font-size:19.7px;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+</style>
+</head>
+<body>
+
+    <!-- Theme toggle switch -->
+    <div id="toggle-theme">
+        <label class="toggle-switch">
+            <input type="checkbox" id="theme-checkbox">
+            <span class="slider"></span>
+        </label>
+    </div>
+ <div class="header" id="myHeader">
+  <h2>MyEasySchool</h2>
+Physics101 cbt<div id="nameDisplay"></div>
+   <span id="score">Score: 0</span>
+
+</div>
+    <div id="loader"></div>
+    <div id="content"></div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+
+<div class="overlay" id="overlay"></div>
+<div class="popup" id="popup">
+<div class="popup-header"></div>
+<div class="popup-content">
+  <h2> Completed!</h2>
+  <p id="finalScore"></p>
+        <button onclick="tryAgain()" id="again">Try Again</button>
+        <button onclick="showAssessment()" id="show">Show Assessment</button>
+    </div>
+</div>
+<button id="logout-button" style="display:none;">Logout</button>
+    </div>
+    <div id="unauthorized">
+        <p>You must be logged in to view this page. Redirecting to the login page...</p>
+    </div>
+    <div id="assessment" class="assessment"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/contrib/auto-render.min.js"></script>
+
+<script src="Biocbt4.js"></script>
+</body>
+</html>

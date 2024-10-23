@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Waste Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f0;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .flex-box {
+            display: flex;
+            flex-direction: column;
+            width: 48%; /* Adjust width for two boxes */
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            font-size: 20px;
+            color: #2f8a2e;
+        }
+
+        .card p {
+            font-size: 16px;
+            color: #555;
+            margin: 10px 0;
+        }
+
+        .card button {
+            background-color: #2f8a2e;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .card button:hover {
+            background-color: #256b22;
+        }
+
+        @media (min-width: 768px) {
+            .card {
+                flex: 0 0 calc(20% - 20px); /* Five columns */
+            }
+        }
+
+        @media (max-width: 767px) {
+            .card {
+                flex: 0 0 calc(45% - 20px); /* Two columns on smaller screens */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Farm Waste Marketplace</h1>
+    <div class="container">
+        <!-- Left Flex Box -->
+        <div class="flex-box">
+            <h2>Animal Waste</h2>
+            <div class="card">
+                <h3>Chicken Manure</h3>
+                <p>High-quality chicken manure, perfect for your crops.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Cow Dung</h3>
+                <p>Rich in nutrients, ideal for organic farming.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Horse Manure</h3>
+                <p>Great for enriching soil and improving crop yield.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Goat Manure</h3>
+                <p>Excellent for gardens and landscaping.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Rabbit Manure</h3>
+                <p>Perfect for your vegetable garden!</p>
+                <button>Purchase</button>
+            </div>
+        </div>
+
+        <!-- Right Flex Box -->
+        <div class="flex-box">
+            <h2>Bio Waste</h2>
+            <div class="card">
+                <h3>Fruit Peels</h3>
+                <p>Great for composting or direct soil application.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Vegetable Scraps</h3>
+                <p>Ideal for enriching your garden soil.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Grass Clippings</h3>
+                <p>Perfect for mulching and composting.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Leaves</h3>
+                <p>Great for creating organic mulch.</p>
+                <button>Purchase</button>
+            </div>
+            <div class="card">
+                <h3>Wood Chips</h3>
+                <p>Useful for landscaping and gardening.</p>
+                <button>Purchase</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
